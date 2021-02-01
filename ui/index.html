@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		@font-face {
+			font-family: "Knewave-Regular";
+			src: url("./Knewave-Regular.woff2") format("woff2");
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		body {
+			padding: 0;
+			margin: 0;
+			font-family: "Knewave-Regular", "sans-serif";
+		}
+
+		#damageGiven {
+			position: fixed;
+			left: 50%;
+			bottom: 50%;
+		}
+
+		#damageTaken {
+			position: fixed;
+			right: 0%;
+			bottom: 15%;
+		}
+
+		audio {
+			opacity: 0;
+			height: 1px;
+			width: 1px;
+		}
+	</style>
+</head><body>
+	<canvas id="damageGiven"></canvas>
+	<canvas id="damageTaken"></canvas>
+	<script src="d3-ease.min.js"></script>
+	<script src="hiteffects.js"></script>
+</body></html>

@@ -1,0 +1,12 @@
+{
+  "Name": "VU-HitVoices",
+  "Authors": ["breaknix", "MajorVictory87"],
+  "Description": "Adds character voices, crowd applause, and an announcer.",
+  "Version": "1.0.0",
+  "HasVeniceEXT": true,
+  "HasWebUI": true,
+  "Dependencies": {
+    "veniceext": "^1.0.0"
+  },
+  "Tags": [ "hitvoices" ]
+}
