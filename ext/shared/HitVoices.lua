@@ -26,7 +26,7 @@ function HitVoices:RegisterVars()
 end
 
 function HitVoices:RegisterEvents()
-	Events:Subscribe('HitVoices::OnChangeCharacter', self, self.setCharacter)
+	NetEvents:Subscribe('HitVoices:OnChangeCharacter', self, self.setCharacter)
 end
 
 function HitVoices:setCharacter(playerID, characterName)

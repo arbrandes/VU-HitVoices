@@ -21,17 +21,17 @@ function HitVoicesClient:RegisterEvents()
 	Events:Subscribe('Player:Respawn', self, self.onPlayerRespawn)
 	Events:Subscribe('Extension:Loaded', WebUI, WebUI.Init)
 
-	Events:Subscribe('HitVoices:OnChangeCharacter', self, self.onChangeCharacter)
-	Events:Subscribe('HitVoices:OnDamageTaken', self, self.onDamageTaken)
-	Events:Subscribe('HitVoices:OnDamageGiven', self, self.onDamageGiven)
-	Events:Subscribe('HitVoices:OnPlayerKilled', self, self.onPlayerKilled)
+	NetEvents:Subscribe('HitVoices:OnChangeCharacter', self, self.onChangeCharacter)
+	NetEvents:Subscribe('HitVoices:OnDamageTaken', self, self.onDamageTaken)
+	NetEvents:Subscribe('HitVoices:OnDamageGiven', self, self.onDamageGiven)
+	NetEvents:Subscribe('HitVoices:OnPlayerKilled', self, self.onPlayerKilled)
 end
 
 function HitVoicesClient:onConsoleSetCharacter(args) 
 	local characterName = string.lower(args[1])
 	for i=1, #hitVoices.validNames do
 		if (characterName == hitVoices.validNames[i]:lower()) then
-			Events:DispatchLocal('HitVoices:OnChangeCharacter', self.myPlayer.name, characterName)
+			NetEvents:SendLocal('HitVoices:OnChangeCharacter', self.myPlayer.name, characterName)
 			return
 		end
 	end

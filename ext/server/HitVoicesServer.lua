@@ -18,20 +18,20 @@ end
 function HitVoicesServer:onPlayerJoining(name, playerGuid, ipAddress, accountGuid)
 	ChatManager:Yell(name..' Joins the Battle!', 30)
 
-	Events:DispatchLocal('HitVoices:OnChangeCharacter', name, hitVoices:getCharacter(name))
+	NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', name, hitVoices:getCharacter(name))
 end
 
 function HitVoicesServer:onSoldierDamage(hookCtx, soldier, info, giverInfo)
 	-- player took damage from anything
 	if (soldier ~= nil and soldier.player ~= nil and info.damage ~= nil and info.damage > 0) then
-		Events:DispatchLocal('HitVoices:OnDamageTaken', soldier.player.name, info.damage, info.boneIndex == 1)
+		NetEvents:BroadcastLocal('HitVoices:OnDamageTaken', soldier.player.name, info.damage, info.boneIndex == 1)
 	end
 	-- we only care about player to player damage
 	if giverInfo ~= nil and giverInfo.giver ~= nil and
 		soldier ~= nil and soldier.player ~= nil and
 		info.damage ~= nil and info.damage > 0 then
 		if (giverInfo.giver.id ~= soldier.player.id) then -- player1 on player2 damage
-			Events:DispatchLocal('HitVoices:OnDamageGiven', giverInfo.giver.name, soldier.player.name, info.damage, info.boneIndex == 1)
+			NetEvents:BroadcastLocal('HitVoices:OnDamageGiven', giverInfo.giver.name, soldier.player.name, info.damage, info.boneIndex == 1)
 		end
 	end
 	hookCtx:Pass(soldier, info, giverInfo)
@@ -47,7 +47,7 @@ function HitVoicesServer:onPlayerKilled(player, inflictor, position, weapon, isR
 				isMelee = true
 			end
 		end
-		Events:DispatchLocal('HitVoices:OnPlayerKilled', player.name, inflictor.name, isMelee)
+		NetEvents:BroadcastLocal('HitVoices:OnPlayerKilled', player.name, inflictor.name, isMelee)
 	end
 end
 
@@ -64,7 +64,7 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 			for i=1, #hitVoices.validNames do
 				if (parts[2] == hitVoices.validNames[i]:lower()) then
 					print('HitVoices:OnChangeCharacter: '..tostring(player.name)..' | '..tostring(parts[2]))
-					Events:DispatchLocal('HitVoices:OnChangeCharacter', player.name, parts[2])
+					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, parts[2])
 					return
 				end
 			end
@@ -78,7 +78,7 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 			for i=1, #hitVoices.validNames do
 				if (parts[1] == '!'..hitVoices.validNames[i]:lower()) then
 					print('HitVoices:OnChangeCharacter: '..tostring(player.name)..' | '..tostring(hitVoices.validNames[i]:lower()))
-					Events:DispatchLocal('HitVoices:OnChangeCharacter', player.name, hitVoices.validNames[i]:lower())
+					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, hitVoices.validNames[i]:lower())
 					return
 				end
 			end
