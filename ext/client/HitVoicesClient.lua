@@ -7,171 +7,118 @@ end
 
 function HitVoicesClient:RegisterVars()
 
-	self.characterLookup = {}
-	self.validNames = {'Captain', 'Combine', 'Ganon', 'Incineroar', 'Peach', 'Wolf', 'Off'}
 	self.killCounter = 0
-	self.showNameChoices = ''
-	self.showNameChoicesConsole = ''
 	self.lastPlayerConnectedTime = 0;
-
-	for i=1, #self.validNames do
-		if (self.showNameChoices:len() > 0) then
-			self.showNameChoices = self.showNameChoices..', '
-		end
-		if (self.showNameChoicesConsole:len() > 0) then
-			self.showNameChoicesConsole = self.showNameChoicesConsole..', '
-		end
-		self.showNameChoices = self.showNameChoices..'!'..self.validNames[i]
-		self.showNameChoicesConsole = self.showNameChoicesConsole..self.validNames[i]
-	end
+	self.myPlayer = nil
 end
 
 function HitVoicesClient:RegisterEvents()
 
-	Console:Register('SetCharacter', 'Usage: vu-hitvoices.SetCharacter ['..self.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
+	Console:Register('SetCharacter', 'Usage: vu-hitvoices.SetCharacter ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
 
 	Events:Subscribe('Player:UpdateInput', self, self.onPlayerUpdateInput)
 	Events:Subscribe('Player:Connected', self, self.onPlayerConnected)
 	Events:Subscribe('Player:Respawn', self, self.onPlayerRespawn)
 	Events:Subscribe('Extension:Loaded', WebUI, WebUI.Init)
 
-	NetEvents:Subscribe('HitEffects:OnChangeCharacter', self, self.onChangeCharacter)
-	NetEvents:Subscribe('HitEffects:OnDamageTaken', self, self.onDamageTaken)
-	NetEvents:Subscribe('HitEffects:OnDamageGiven', self, self.onDamageGiven)
-	NetEvents:Subscribe('HitEffects:OnPlayerKilled', self, self.onPlayerKilled)
-	NetEvents:Subscribe('HitEffects:OnPlayerMelee', self, self.onPlayerMelee)
+	Events:Subscribe('HitVoices:OnChangeCharacter', self, self.onChangeCharacter)
+	Events:Subscribe('HitVoices:OnDamageTaken', self, self.onDamageTaken)
+	Events:Subscribe('HitVoices:OnDamageGiven', self, self.onDamageGiven)
+	Events:Subscribe('HitVoices:OnPlayerKilled', self, self.onPlayerKilled)
 end
 
 function HitVoicesClient:onConsoleSetCharacter(args) 
 	local characterName = string.lower(args[1])
-	for i=1, #self.validNames do
-		if (characterName == self.validNames[i]:lower()) then
-			local myself = PlayerManager:GetLocalPlayer()
-			NetEvents:SendLocal('HitEffects:OnSetCharacter', myself.id, characterName)
+	for i=1, #hitVoices.validNames do
+		if (characterName == hitVoices.validNames[i]:lower()) then
+			Events:DispatchLocal('HitVoices:OnChangeCharacter', self.myPlayer.name, characterName)
 			return
 		end
 	end
 
-	SharedUtils:Print("Choices are: "..self.showNameChoices)
+	SharedUtils:Print("Choices are: "..hitVoices.showNameChoicesConsole)
 	return false
 end
 
-function HitVoicesClient:getCharacter(playerID)
-	if (self.characterLookup[tostring(playerID)] == nil) then
-		self.characterLookup[tostring(playerID)] = self.validNames[math.random(1, #self.validNames)]:lower()
-	end
-	return self.characterLookup[tostring(playerID)]
-end
-
-
-
 function HitVoicesClient:onPlayerUpdateInput(player, deltaTime)
-	local myself = PlayerManager:GetLocalPlayer()
-	if(myself.input ~= nil and myself.soldier ~= nil) then
-		if (myself.id == player.id and player.input:GetLevel(EntryInputActionEnum.EIAJump) > 0) and not isYumping then
-			WebUI:ExecuteJS(string.format("playJumpSound(\'%s\')", self:getCharacter(myself.id)))
+
+	if (self.myPlayer == nil) then
+		self.myPlayer = PlayerManager:GetLocalPlayer()
+	end
+
+	if(self.myPlayer.input ~= nil and self.myPlayer.soldier ~= nil) then
+		if (self.myPlayer.id == player.id and player.input:GetLevel(EntryInputActionEnum.EIAJump) > 0) and not isYumping then
+			WebUI:ExecuteJS(string.format("playJumpSound(\'%s\')", hitVoices:getCharacter(self.myPlayer.name)))
 			isYumping = true
 		end
-		if (myself.id == player.id and player.input:GetLevel(EntryInputActionEnum.EIAJump) <= 0) and isYumping then
+		if (self.myPlayer.id == player.id and player.input:GetLevel(EntryInputActionEnum.EIAJump) <= 0) and isYumping then
 			isYumping = false
 		end
 	end
 end
 
 function HitVoicesClient:onPlayerConnected(player)
-	local myself = PlayerManager:GetLocalPlayer()
-	if (myself ~= nil and myself.id == player.id) then
-		NetEvents:SendLocal('HitEffects:OnSetCharacter', myself.id, self:getCharacter(myself.id))
-	end
-	if (myself ~= nil and myself.id ~= player.id) then
-
+	self.myPlayer = PlayerManager:GetLocalPlayer()
+	if (self.myPlayer ~= nil and self.myPlayer.id ~= player.id) then
 		if (self.lastPlayerConnectedTime < SharedUtils:GetTimeMS()) then
 			self.lastPlayerConnectedTime = SharedUtils:GetTimeMS() + 1500 -- prevent event spam, 1.5 second delay
 
-			WebUI:ExecuteJS(string.format("playConnectedSound(\'%s\')", self:getCharacter(player.id)))
+			WebUI:ExecuteJS(string.format("playConnectedSound(\'%s\')", hitVoices:getCharacter(player.name)))
 		end
-	end
-
-	-- myself is nil == it's a bot
-	if (myself == nil and player.id ~= nil) then
-		NetEvents:SendLocal('HitEffects:OnSetCharacter', player.id, self:getCharacter(player.id))
 	end
 end
 
 function HitVoicesClient:onPlayerRespawn(player)
-	local myself = PlayerManager:GetLocalPlayer()
-	if (myself.id == player.id) then
-		WebUI:ExecuteJS(string.format("playSpawnScene(\'%s\')", self:getCharacter(myself.id)))
+	if (self.myPlayer.id == player.id) then
+		WebUI:ExecuteJS(string.format("playSpawnScene(\'%s\')", hitVoices:getCharacter(self.myPlayer.name)))
 	end
 end
 
-function HitVoicesClient:onChangeCharacter(playerID, characterName, newCharacterLookupTable)
-	self.characterLookupTable = {}
-	for id,character in pairs(newCharacterLookupTable) do
-		print('['..tostring(id)..']: '..tostring(character))
-		self.characterLookupTable[id] = character
-	end
-
-	local myself = PlayerManager:GetLocalPlayer()
-	if (myself.id == playerID) then
+function HitVoicesClient:onChangeCharacter(playerID, characterName)
+	print('HitVoicesClient:onChangeCharacter: '..tostring(self.myPlayer.name)..' | '..tostring(playerID).. ' | '..tostring(characterName))
+	if (self.myPlayer.name == playerID) then
 		WebUI:ExecuteJS(string.format('playSetCharacterScene(\'%s\')', characterName:lower()))
 	end
 end
 
-function HitVoicesClient:onDamageTaken(damage, isHeadshot)
-	WebUI:ExecuteJS(string.format('addTakenEffect(%d, %s)', math.floor(damage), tostring(isHeadshot)))
+function HitVoicesClient:onDamageTaken(playerID, damage, isHeadshot)
+	if (self.myPlayer.name == playerID) then
+		WebUI:ExecuteJS(string.format('addTakenEffect(%d, %s)', math.floor(damage), tostring(isHeadshot)))
+	end
 end
 
-function HitVoicesClient:onDamageGiven(playerID, damage, isHeadshot)
-	WebUI:ExecuteJS(string.format('addGivenEffect(\'%s\', %d, %s)', self:getCharacter(playerID), math.floor(damage), tostring(isHeadshot)))
+function HitVoicesClient:onDamageGiven(giverID, takerID, damage, isHeadshot)
+	if (self.myPlayer.name == giverID) then
+		WebUI:ExecuteJS(string.format('addGivenEffect(\'%s\', %d, %s)', hitVoices:getCharacter(takerID), math.floor(damage), tostring(isHeadshot)))
+	end
 end
 
-function HitVoicesClient:onPlayerKilled(playerID, killerID)
-	print('self.killCounter: '..tostring(self.killCounter))
-	local myself = PlayerManager:GetLocalPlayer()
-	if (myself.id == killerID) then
+function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
+	print('onPlayerKilled - self.killCounter [A]: '..tostring(self.killCounter))
+	
+	-- player got a kill
+	if (self.myPlayer.name == killerID) then
 		self.killCounter = self.killCounter + 1
-		WebUI:ExecuteJS(string.format("playCheerSound(\'%s\')", self:getCharacter(killerID)))
+		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\')", hitVoices:getCharacter(playerID)))
+		WebUI:ExecuteJS(string.format("playCheerSound(\'%s\', 500)", hitVoices:getCharacter(killerID)))
 
-		if (self.killCounter > 0 and self.killCounter % 5 == 0) then
-			print(string.format("playTauntSound(\'%s\', 1000)", self:getCharacter(killerID)))
-			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1000)", self:getCharacter(killerID)))
+		if (isMelee or (self.killCounter > 0 and self.killCounter % 5 == 0)) then
+			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
 		end
 	end
-	if (myself.id == playerID) then
+
+	-- player was killed
+	if (self.myPlayer.name == playerID) then
 		self.killCounter = 0
-		if (myself.id ~= killerID) then
-			WebUI:ExecuteJS(string.format("playDeathScene(\'%s\', \'%s\')", self:getCharacter(playerID), self:getCharacter(killerID)))
-		else
-			WebUI:ExecuteJS(string.format("playDeathScene(\'%s\', \'off\')", self:getCharacter(playerID)))
+
+		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\')", hitVoices:getCharacter(playerID)))
+		WebUI:ExecuteJS(string.format("playAwwSound(\'%s\', 500)", hitVoices:getCharacter(playerID)))
+
+		if (isMelee) then
+			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
 		end
 	end
+	print('onPlayerKilled - self.killCounter [B]: '..tostring(self.killCounter))
 end
-
-function HitVoicesClient:onPlayerMelee(playerID, killerID)
-	local myself = PlayerManager:GetLocalPlayer()
-	if (myself.id == killerID and myself.id ~= playerID) then
-		self.killCounter = self.killCounter + 1
-		local js = string.format("playCheerSound(\'%s\');playDeathSound(\'%s\');playTauntSound(\'%s\', 1500)",
-			self:getCharacter(killerID),
-			self:getCharacter(playerID),
-			self:getCharacter(killerID)
-		)
-		WebUI:ExecuteJS(js)
-		print(js)
-	end
-	if (myself.id == playerID and myself.id ~= killerID) then
-		self.killCounter = 0
-
-		local js = string.format("playAwwSound(\'%s\');playDeathSound(\'%s\');playTauntSound(\'%s\', 1500)",
-			self:getCharacter(playerID),
-			self:getCharacter(playerID),
-			self:getCharacter(killerID)
-		)
-		WebUI:ExecuteJS(js)
-		print(js)
-	end
-end
-
 
 return HitVoicesClient()

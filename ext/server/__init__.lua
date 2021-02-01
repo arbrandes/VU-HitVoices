@@ -5,4 +5,5 @@ function string:split(sep)
     return fields
 end
 
+hitVoices = require('__shared/HitVoices')
 require('HitVoicesServer')
