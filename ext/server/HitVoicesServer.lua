@@ -49,6 +49,11 @@ function HitVoicesServer:onPlayerKilled(player, inflictor, position, weapon, isR
 		end
 		NetEvents:BroadcastLocal('HitVoices:OnPlayerKilled', player.name, inflictor.name, isMelee)
 	end
+
+	-- possible bot kill
+	if (player ~= nil and inflictor == nil) then
+		NetEvents:BroadcastLocal('HitVoices:OnPlayerKilled', player.name, '', false)
+	end
 end
 
 function HitVoicesServer:onPlayerChat(player, recipientMask, message)

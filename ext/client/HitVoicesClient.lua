@@ -100,7 +100,7 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 			hitVoices:getCharacter(playerID), hitVoices:getCharacter(killerID))
 		)
 
-		-- every 5 kills
+		-- every knife kill or every 5 kills
 		if (isMelee or (self.killCounter > 0 and self.killCounter % 5 == 0)) then
 			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
 		end
