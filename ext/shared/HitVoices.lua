@@ -9,7 +9,7 @@ end
 function HitVoices:RegisterVars()
 
 	self.characterLookup = {}
-	self.validNames = {'Captain', 'Combine', 'Ganon', 'Incineroar', 'Peach', 'Wolf', 'Fox', 'Off'}
+	self.validNames = {'Captain', 'Combine', 'Ganon', 'Incineroar', 'Peach', 'Wolf', 'Fox', 'Luigi', 'Off'}
 	self.showNameChoices = ''
 	self.showNameChoicesConsole = ''
 

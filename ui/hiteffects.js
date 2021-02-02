@@ -167,6 +167,13 @@ async function playSetCharacterScene(character) {
 	playCheerSound(character, 1000);
 }
 
+async function playSpawnScene(character) {
+	playCheerSound(character);
+	playAnnouncerReadySound(character);
+	playAnnouncerGoSound(character, 1000);
+	playTauntSound(character, 1500);
+}
+
 // -----
 
 // individual sound effects

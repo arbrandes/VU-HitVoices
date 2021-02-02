@@ -96,8 +96,9 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 	-- player got a kill
 	if (self.myPlayer.name == killerID) then
 		self.killCounter = self.killCounter + 1
-		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\')", hitVoices:getCharacter(playerID)))
-		WebUI:ExecuteJS(string.format("playCheerSound(\'%s\', 500)", hitVoices:getCharacter(killerID)))
+		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playCheerSound(\'%s\', 500);",
+			hitVoices:getCharacter(playerID), hitVoices:getCharacter(killerID))
+		)
 
 		-- every 5 kills
 		if (isMelee or (self.killCounter > 0 and self.killCounter % 5 == 0)) then
@@ -106,7 +107,7 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 
 		-- every other knife kill or every 10 kills
 		if ((self.killCounter > 0 and self.killCounter % 2 == 0 and isMelee) or (self.killCounter > 0 and self.killCounter % 10 == 0)) then
-			WebUI:ExecuteJS(string.format("playAnnouncerPraiseSound(\'%s\')", hitVoices:getCharacter(killerID)))
+			WebUI:ExecuteJS(string.format("playAnnouncerPraiseSound(\'%s\', 2000)", hitVoices:getCharacter(killerID)))
 		end
 	end
 
@@ -114,8 +115,9 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 	if (self.myPlayer.name == playerID) then
 		self.killCounter = 0
 
-		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\')", hitVoices:getCharacter(playerID)))
-		WebUI:ExecuteJS(string.format("playAwwSound(\'%s\', 500)", hitVoices:getCharacter(playerID)))
+		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playAwwSound(\'%s\', 500);",
+			hitVoices:getCharacter(playerID), hitVoices:getCharacter(playerID))
+		)
 
 		if (isMelee) then
 			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
