@@ -9,7 +9,7 @@ end
 function HitVoices:RegisterVars()
 
 	self.characterLookup = {}
-	self.validNames = {'Captain', 'Combine', 'Ganon', 'Incineroar', 'Peach', 'Wolf', 'Off'}
+	self.validNames = {'Captain', 'Combine', 'Ganon', 'Incineroar', 'Peach', 'Wolf', 'Fox', 'Off'}
 	self.showNameChoices = ''
 	self.showNameChoicesConsole = ''
 
@@ -30,18 +30,13 @@ function HitVoices:RegisterEvents()
 end
 
 function HitVoices:setCharacter(playerID, characterName)
-	print('setCharacter: '..tostring(playerID)..' | '..tostring(characterName))
-	print('setCharacter: self.characterLookup ('..tostring(self.characterLookup)..')')
 	self.characterLookup[playerID] = characterName
 end
 
 function HitVoices:getCharacter(playerID)
-	print('getCharacter -> playerID: '..tostring(playerID))
 	if (self.characterLookup[playerID] == nil) then
 		self.characterLookup[playerID] = self.validNames[math.random(1, #self.validNames-1)]:lower()
-		print('getCharacter -> empty')
 	end
-	print('getCharacter -> self.characterLookup[playerID]: '..tostring(self.characterLookup[playerID]))
 	return self.characterLookup[playerID]
 end
 

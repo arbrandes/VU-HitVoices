@@ -75,7 +75,6 @@ function HitVoicesClient:onPlayerRespawn(player)
 end
 
 function HitVoicesClient:onChangeCharacter(playerID, characterName)
-	print('HitVoicesClient:onChangeCharacter: '..tostring(self.myPlayer.name)..' | '..tostring(playerID).. ' | '..tostring(characterName))
 	if (self.myPlayer.name == playerID) then
 		WebUI:ExecuteJS(string.format('playSetCharacterScene(\'%s\')', characterName:lower()))
 	end
@@ -93,17 +92,21 @@ function HitVoicesClient:onDamageGiven(giverID, takerID, damage, isHeadshot)
 	end
 end
 
-function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
-	print('onPlayerKilled - self.killCounter [A]: '..tostring(self.killCounter))
-	
+function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)	
 	-- player got a kill
 	if (self.myPlayer.name == killerID) then
 		self.killCounter = self.killCounter + 1
 		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\')", hitVoices:getCharacter(playerID)))
 		WebUI:ExecuteJS(string.format("playCheerSound(\'%s\', 500)", hitVoices:getCharacter(killerID)))
 
+		-- every 5 kills
 		if (isMelee or (self.killCounter > 0 and self.killCounter % 5 == 0)) then
 			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
+		end
+
+		-- every other knife kill or every 10 kills
+		if ((self.killCounter > 0 and self.killCounter % 2 == 0 and isMelee) or (self.killCounter > 0 and self.killCounter % 10 == 0)) then
+			WebUI:ExecuteJS(string.format("playAnnouncerPraiseSound(\'%s\')", hitVoices:getCharacter(killerID)))
 		end
 	end
 
@@ -118,7 +121,6 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 			WebUI:ExecuteJS(string.format("playTauntSound(\'%s\', 1500)", hitVoices:getCharacter(killerID)))
 		end
 	end
-	print('onPlayerKilled - self.killCounter [B]: '..tostring(self.killCounter))
 end
 
 return HitVoicesClient()

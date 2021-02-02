@@ -162,26 +162,9 @@ async function playSetCharacterScene(character) {
 		playAwwSound();
 		return;
 	}
-	playSound("vc_menu_narration_choosechara.ogg");
+	playSound("announcer/vc_menu_narration_choosechara.ogg");
 	playAnnounceCharacterSound(character, 2255)
 	playCheerSound(character, 1000);
-}
-
-
-async function playDeathScene(character, killer) {
-	if (character == 'off' || !soundsEnabled) { return; }
-	playDeathSound(character, 0);
-	playAwwSound(character, 500);
-	if (killer != 'off') {
-		playTauntSound(killer, 1500);
-	}
-}
-
-async function playSpawnScene(character) {
-	playCheerSound(character);
-	playAnnouncerReadySound(character);
-	playAnnouncerGoSound(character, 1000);
-	playTauntSound(character, 1500);
 }
 
 // -----
@@ -191,36 +174,43 @@ async function playSpawnScene(character) {
 async function playAnnouncerReadySound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("vc_narration_ready.ogg");
+	playSound("announcer/vc_narration_ready.ogg");
 }
+
 async function playAnnouncerGoSound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("vc_narration_go.ogg");
+	playSound("announcer/vc_narration_go.ogg");
+}
+
+async function playAnnouncerPraiseSound(character, delay = 0) {
+	if (character == 'off' || !soundsEnabled) { return; }
+	if (delay > 0) { await sleep(delay); }
+	playSound("announcer/vc_menu_narration_praise0"+(randomNumber(1,5))+".ogg");
 }
 
 async function playAnnounceCharacterSound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("vc_narration_characall_"+character+".ogg");
+	playSound("announcer/vc_narration_characall_"+character+".ogg");
 }
 
 async function playConnectedSound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("vc_menu_narration_challengersapproach.ogg");
+	playSound("announcer/vc_menu_narration_challengersapproach.ogg");
 }
 
 async function playCheerSound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("se_audience_cheer_0"+(randomNumber(1,6))+".ogg");
+	playSound("audience/se_audience_cheer_0"+(randomNumber(1,6))+".ogg");
 }
 
 async function playAwwSound(character, delay = 0) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("se_audience_death_0"+(randomNumber(1,4))+".ogg");
+	playSound("audience/se_audience_death_0"+(randomNumber(1,4))+".ogg");
 }
 
 async function playJumpSound(character, delay = 0) {

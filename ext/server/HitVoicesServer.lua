@@ -63,7 +63,6 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 
 			for i=1, #hitVoices.validNames do
 				if (parts[2] == hitVoices.validNames[i]:lower()) then
-					print('HitVoices:OnChangeCharacter: '..tostring(player.name)..' | '..tostring(parts[2]))
 					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, parts[2])
 					return
 				end
@@ -77,7 +76,6 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 		if (parts[1] ~= nil) then
 			for i=1, #hitVoices.validNames do
 				if (parts[1] == '!'..hitVoices.validNames[i]:lower()) then
-					print('HitVoices:OnChangeCharacter: '..tostring(player.name)..' | '..tostring(hitVoices.validNames[i]:lower()))
 					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, hitVoices.validNames[i]:lower())
 					return
 				end
