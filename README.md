@@ -7,12 +7,14 @@ Based on the fortnite hitmarkers mod; adds character voices, crowd applause, and
 Players can select their character voice using `!voice` in chat to see the lsi of available characters.
 
 Current characters are:
-- Captain Falcon: `!Captain`
 - Combine Soldier: `!Combine`
-- Ganondorf: `!Ganon`
+- Captain Falcon: `!Captain`
 - Incineroar: `!Incineroar`
+- Ganondorf: `!Ganon`
 - Peach: `!Peach`
+- Luigi: `!Luigi`
 - Wolf: `!Wolf`
+- Fox: `!Fox`
 
 Effects can be turned off with the command `!off`
 

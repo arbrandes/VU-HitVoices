@@ -69,32 +69,32 @@ function HitVoicesClient:onPlayerConnected(player)
 end
 
 function HitVoicesClient:onPlayerRespawn(player)
-	if (self.myPlayer.id == player.id) then
+	if (self.myPlayer ~= nil and self.myPlayer.id == player.id) then
 		WebUI:ExecuteJS(string.format("playSpawnScene(\'%s\')", hitVoices:getCharacter(self.myPlayer.name)))
 	end
 end
 
 function HitVoicesClient:onChangeCharacter(playerID, characterName)
-	if (self.myPlayer.name == playerID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
 		WebUI:ExecuteJS(string.format('playSetCharacterScene(\'%s\')', characterName:lower()))
 	end
 end
 
 function HitVoicesClient:onDamageTaken(playerID, damage, isHeadshot)
-	if (self.myPlayer.name == playerID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
 		WebUI:ExecuteJS(string.format('addTakenEffect(%d, %s)', math.floor(damage), tostring(isHeadshot)))
 	end
 end
 
 function HitVoicesClient:onDamageGiven(giverID, takerID, damage, isHeadshot)
-	if (self.myPlayer.name == giverID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == giverID) then
 		WebUI:ExecuteJS(string.format('addGivenEffect(\'%s\', %d, %s)', hitVoices:getCharacter(takerID), math.floor(damage), tostring(isHeadshot)))
 	end
 end
 
 function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)	
 	-- player got a kill
-	if (self.myPlayer.name == killerID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == killerID) then
 		self.killCounter = self.killCounter + 1
 		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playCheerSound(\'%s\', 500);",
 			hitVoices:getCharacter(playerID), hitVoices:getCharacter(killerID))
@@ -112,7 +112,7 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 	end
 
 	-- player was killed
-	if (self.myPlayer.name == playerID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
 		self.killCounter = 0
 
 		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playAwwSound(\'%s\', 500);",
