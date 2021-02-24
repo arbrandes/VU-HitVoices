@@ -1,5 +1,5 @@
 # VU-HitVoices
-Based on the fortnite hitmarkers mod; adds character voices, crowd applause, and an announcer.
+Loosely based on the fortnite hitmarkers mod; adds character voices, crowd applause, and an announcer.
 
 ## Features
 
@@ -16,6 +16,9 @@ Current characters are:
 - Luigi: `!Luigi` or `!Voice Luigi`
 - Wolf: `!Wolf` or `!Voice Wolf`
 - Fox: `!Fox` or `!Voice Fox`
+- Zombie 1: `!Zombie1` or `!Voice Zombie1`
+- Zombie 2: `!Zombie2` or `!Voice Zombie2`
+- Zombie 3: `!Zombie3` or `!Voice Zombie3`
 
 Effects can be turned off with the command `!Off` or `!Voice Off`
 
