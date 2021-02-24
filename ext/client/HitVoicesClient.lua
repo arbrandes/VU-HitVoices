@@ -6,7 +6,6 @@ function HitVoicesClient:__init()
 end
 
 function HitVoicesClient:RegisterVars()
-
 	self.killCounter = 0
 	self.lastPlayerConnectedTime = 0;
 	self.myPlayer = nil
@@ -14,7 +13,7 @@ end
 
 function HitVoicesClient:RegisterEvents()
 
-	Console:Register('SetCharacter', 'Usage: vu-hitvoices.SetCharacter ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
+	Console:Register('Voice', 'Usage: vu-hitvoices.Voice ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
 
 	Events:Subscribe('Player:UpdateInput', self, self.onPlayerUpdateInput)
 	Events:Subscribe('Player:Connected', self, self.onPlayerConnected)
@@ -27,12 +26,13 @@ function HitVoicesClient:RegisterEvents()
 	NetEvents:Subscribe('HitVoices:OnPlayerKilled', self, self.onPlayerKilled)
 end
 
-function HitVoicesClient:onConsoleSetCharacter(args) 
-	local characterName = string.lower(args[1])
-	for i=1, #hitVoices.validNames do
-		if (characterName == hitVoices.validNames[i]:lower()) then
+function HitVoicesClient:onConsoleSetCharacter(args)
+	if (args[1] ~= nil) then
+		local characterName = hitVoices:isValidName(args[1])
+		if (characterName ~= false) then
 			NetEvents:SendLocal('HitVoices:OnChangeCharacter', self.myPlayer.name, characterName)
-			return
+			self:onChangeCharacter(self.myPlayer.name, characterName)
+			return true
 		end
 	end
 
@@ -65,6 +65,9 @@ function HitVoicesClient:onPlayerConnected(player)
 
 			WebUI:ExecuteJS(string.format("playConnectedSound(\'%s\')", hitVoices:getCharacter(player.name)))
 		end
+	end
+	if (self.myPlayer ~= nil and self.myPlayer.id == player.id) then
+		NetEvents:Send('HitVoices:OnGetConfig')
 	end
 end
 

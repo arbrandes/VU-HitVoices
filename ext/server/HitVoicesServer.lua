@@ -13,11 +13,26 @@ function HitVoicesServer:RegisterEvents()
 	Events:Subscribe('Player:Killed', self, self.onPlayerKilled)
 	Events:Subscribe('Player:Chat', self, self.onPlayerChat)
 	Hooks:Install('Soldier:Damage', 0, self, self.onSoldierDamage)
+
+	for conVar, conValue in pairs(hitVoices.Config) do
+		RCON:RegisterCommand('vu-hitvoices.'..conVar, RemoteCommandFlag.RequiresLogin, function(command, args, loggedIn)
+			local varName = command:split('.')[2]
+			
+			if (args ~= nil and args[1] ~= nil) then
+				hitVoices.Config[varName] = table.concat(args, ',')
+			end
+
+			hitVoices:onSetConfig(hitVoices.Config)
+			NetEvents:BroadcastLocal('HitVoices:OnSetConfig', hitVoices.Config)
+
+			return {'OK', tostring(hitVoices.Config[varName])}
+		end)
+	end
+
 end
 
 function HitVoicesServer:onPlayerJoining(name, playerGuid, ipAddress, accountGuid)
 	ChatManager:Yell(name..' Joins the Battle!', 30)
-
 	NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', name, hitVoices:getCharacter(name))
 end
 
@@ -66,11 +81,11 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 	if (parts ~= nil and #parts > 0) then
 		if (parts[1] == '!voice' and parts[2] ~= nil) then
 
-			for i=1, #hitVoices.validNames do
-				if (parts[2] == hitVoices.validNames[i]:lower()) then
-					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, parts[2])
-					return
-				end
+			local characterName = hitVoices:isValidName(parts[2])
+
+			if (characterName ~= false) then
+				NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, characterName)
+				return
 			end
 			ChatManager:SendMessage("Choices are: "..hitVoices.showNameChoices, player)
 			return
@@ -79,11 +94,10 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 		end
 
 		if (parts[1] ~= nil) then
-			for i=1, #hitVoices.validNames do
-				if (parts[1] == '!'..hitVoices.validNames[i]:lower()) then
-					NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, hitVoices.validNames[i]:lower())
-					return
-				end
+			local characterName = hitVoices:isValidName(parts[1]:sub(2))
+			if (characterName ~= false) then
+				NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, characterName)
+				return
 			end
 		end
 		
