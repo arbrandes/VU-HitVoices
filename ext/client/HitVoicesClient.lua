@@ -13,7 +13,7 @@ end
 
 function HitVoicesClient:RegisterEvents()
 
-	Console:Register('Voice', 'Usage: vu-hitvoices.Voice ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
+	Console:Register('Voice', 'Usage: vu-hitVoices.Voice ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
 
 	Events:Subscribe('Player:UpdateInput', self, self.onPlayerUpdateInput)
 	Events:Subscribe('Player:Connected', self, self.onPlayerConnected)
@@ -60,10 +60,12 @@ end
 function HitVoicesClient:onPlayerConnected(player)
 	self.myPlayer = PlayerManager:GetLocalPlayer()
 	if (self.myPlayer ~= nil and self.myPlayer.id ~= player.id) then
-		if (self.lastPlayerConnectedTime < SharedUtils:GetTimeMS()) then
-			self.lastPlayerConnectedTime = SharedUtils:GetTimeMS() + 1500 -- prevent event spam, 1.5 second delay
+		if ((hitVoices:isBot(player) and hitVoices.Config.AnnounceBots) or not hitVoices:isBot(player)) then
+			if (self.lastPlayerConnectedTime < SharedUtils:GetTimeMS()) then
+				self.lastPlayerConnectedTime = SharedUtils:GetTimeMS() + 1500 -- prevent event spam, 1.5 second delay
 
-			WebUI:ExecuteJS(string.format("playConnectedSound(\'%s\')", hitVoices:getCharacter(player.name)))
+				WebUI:ExecuteJS(string.format("playConnectedSound(\'%s\')", hitVoices:getCharacter(player.name)))
+			end
 		end
 	end
 	if (self.myPlayer ~= nil and self.myPlayer.id == player.id) then
@@ -83,24 +85,20 @@ function HitVoicesClient:onChangeCharacter(playerID, characterName)
 	end
 end
 
-function HitVoicesClient:onDamageTaken(playerID, damage, isHeadshot)
-	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
-		WebUI:ExecuteJS(string.format('addTakenEffect(%d, %s)', math.floor(damage), tostring(isHeadshot)))
-	end
+function HitVoicesClient:onDamageTaken(damage, isHeadshot)
+	WebUI:ExecuteJS(string.format('addTakenEffect(%d, %s)', math.floor(damage), tostring(isHeadshot)))
 end
 
-function HitVoicesClient:onDamageGiven(giverID, takerID, damage, isHeadshot)
-	if (self.myPlayer ~= nil and self.myPlayer.name == giverID) then
-		WebUI:ExecuteJS(string.format('addGivenEffect(\'%s\', %d, %s)', hitVoices:getCharacter(takerID), math.floor(damage), tostring(isHeadshot)))
-	end
+function HitVoicesClient:onDamageGiven(takerID, damage, isHeadshot, volume)
+	WebUI:ExecuteJS(string.format('addGivenEffect(\'%s\', %d, %s, %1.2f)', hitVoices:getCharacter(takerID), math.floor(damage), tostring(isHeadshot), volume))
 end
 
-function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)	
+function HitVoicesClient:onPlayerKilled(killedID, killerID, isMelee, volume)
 	-- player got a kill
 	if (self.myPlayer ~= nil and self.myPlayer.name == killerID) then
 		self.killCounter = self.killCounter + 1
-		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playCheerSound(\'%s\', 500);",
-			hitVoices:getCharacter(playerID), hitVoices:getCharacter(killerID))
+		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\', 0, %1.2f);playCheerSound(\'%s\', 500);",
+			hitVoices:getCharacter(killedID), volume, hitVoices:getCharacter(killerID))
 		)
 
 		-- every knife kill or every 5 kills
@@ -115,11 +113,11 @@ function HitVoicesClient:onPlayerKilled(playerID, killerID, isMelee)
 	end
 
 	-- player was killed
-	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
+	if (self.myPlayer ~= nil and self.myPlayer.name == killedID) then
 		self.killCounter = 0
 
 		WebUI:ExecuteJS(string.format("playDeathSound(\'%s\');playAwwSound(\'%s\', 500);",
-			hitVoices:getCharacter(playerID), hitVoices:getCharacter(playerID))
+			hitVoices:getCharacter(killedID), hitVoices:getCharacter(killedID))
 		)
 
 		if (isMelee) then

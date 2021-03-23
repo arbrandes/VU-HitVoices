@@ -20,15 +20,17 @@ Current characters are:
 - Zombie 2: `!Zombie2` or `!Voice Zombie2`
 - Zombie 3: `!Zombie3` or `!Voice Zombie3`
 
-Effects can be turned off with the command `!Off` or `!Voice Off`
+Effects can be turned off with the command `!Off` or `!Voice Off` in chat
+Names can be partial as long as more than two letters are provided
 
 ### Crowd and Announcer
 The crowd cheers and awws on kills and deaths.
 The announcer calls out joining players and yells Go!
 
 ## Server Configuration
-As a server owner you can enable or disable voices available to the clients
-You can also specify which names bots are allowed to use
+As a server owner you can enable or disable voices available to the clients.
+You can also specify which names bots are allowed to use.
+All of these settings can be set via RCON or by adding them to your `Startup.txt`
 
 ### `vu-hitvoices.Voices`
 **Default:** `"Captain,Combine,Ganon,Incineroar,Peach,Wolf,Fox,Luigi,Zombie1,Zombie2,Zombie3,Off"`
@@ -37,6 +39,15 @@ You can also specify which names bots are allowed to use
 ### `vu-hitvoices.BotVoices`
 **Default:** `"Zombie1,Zombie2,Zombie3"`
 - A comma-separated list of characters available to bots only, bots choose randomly from this list
+
+### `vu-hitvoices.AnnounceBots`
+**Default:** `true`
+- Enable/Disable joining player announcement for bots
+
+### `vu-hitvoices.KillVoiceMaxRange`
+**Default:** `30`
+- Max distance for volume fading on kill sounds (Meters)
+- `-1` to disable volume fading entirely
 
 ## Credit
 Original hitmarkers mod: [fortnite-hit-effects](https://github.com/kapraran/VU-mods/tree/master/fortnite-hit-effects)

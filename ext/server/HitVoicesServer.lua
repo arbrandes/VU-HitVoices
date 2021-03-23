@@ -15,11 +15,22 @@ function HitVoicesServer:RegisterEvents()
 	Hooks:Install('Soldier:Damage', 0, self, self.onSoldierDamage)
 
 	for conVar, conValue in pairs(hitVoices.Config) do
-		RCON:RegisterCommand('vu-hitvoices.'..conVar, RemoteCommandFlag.RequiresLogin, function(command, args, loggedIn)
+		RCON:RegisterCommand('vu-hitVoices.'..conVar, RemoteCommandFlag.RequiresLogin, function(command, args, loggedIn)
+
 			local varName = command:split('.')[2]
-			
-			if (args ~= nil and args[1] ~= nil) then
-				hitVoices.Config[varName] = table.concat(args, ',')
+			if (varName == 'AnnounceBots') then
+				if (args ~= nil and args[1] ~= nil) then
+					hitVoices.Config[varName] = args[1] == '1' or args[1]:lower() == 'true'
+				end
+
+			elseif (varName == 'KillVoiceMaxRange') then
+				if (args ~= nil and args[1] ~= nil and tonumber(args[1]) ~= nil) then
+					hitVoices.Config[varName] = tonumber(args[1])
+				end
+			else
+				if (args ~= nil and args[1] ~= nil) then
+					hitVoices.Config[varName] = table.concat(args, ',')
+				end
 			end
 
 			hitVoices:onSetConfig(hitVoices.Config)
@@ -38,21 +49,28 @@ end
 
 function HitVoicesServer:onSoldierDamage(hookCtx, soldier, info, giverInfo)
 	-- player took damage from anything
-	if (soldier ~= nil and soldier.player ~= nil and info.damage ~= nil and info.damage > 0) then
-		NetEvents:BroadcastLocal('HitVoices:OnDamageTaken', soldier.player.name, info.damage, info.boneIndex == 1)
+	if (soldier ~= nil and soldier.player ~= nil and not hitVoices:isBot(soldier.player) and info.damage ~= nil and info.damage > 0) then
+		NetEvents:SendToLocal('HitVoices:OnDamageTaken', soldier.player, info.damage, info.boneIndex == 1)
 	end
 	-- we only care about player to player damage
 	if giverInfo ~= nil and giverInfo.giver ~= nil and
 		soldier ~= nil and soldier.player ~= nil and
+		not (hitVoices:isBot(soldier.player) and hitVoices:isBot(giverInfo.giver)) and
 		info.damage ~= nil and info.damage > 0 then
 		if (giverInfo.giver.id ~= soldier.player.id) then -- player1 on player2 damage
-			NetEvents:BroadcastLocal('HitVoices:OnDamageGiven', giverInfo.giver.name, soldier.player.name, info.damage, info.boneIndex == 1)
+			local volume = 1
+			if (giverInfo.giver.hasSoldier) then
+				volume = hitVoices:getVolume(soldier.worldTransform.trans, giverInfo.giver.soldier.worldTransform.trans)
+			end
+
+			NetEvents:SendToLocal('HitVoices:OnDamageGiven', giverInfo.giver, soldier.player.name, info.damage, info.boneIndex == 1, volume)
 		end
 	end
 	hookCtx:Pass(soldier, info, giverInfo)
 end
 
 function HitVoicesServer:onPlayerKilled(player, inflictor, position, weapon, isRoadKill, isHeadShot, wasVictimInReviveState, info)
+	
 	-- check for melee kill first
 	if (player ~= nil and inflictor ~= nil) then
 		local isMelee = false
@@ -62,12 +80,18 @@ function HitVoicesServer:onPlayerKilled(player, inflictor, position, weapon, isR
 				isMelee = true
 			end
 		end
-		NetEvents:BroadcastLocal('HitVoices:OnPlayerKilled', player.name, inflictor.name, isMelee)
+		local volume = 1
+		if (player.hasSoldier and inflictor.hasSoldier) then
+			volume = hitVoices:getVolume(player.soldier.worldTransform.trans, inflictor.soldier.worldTransform.trans)
+		end
+
+		NetEvents:SendToLocal('HitVoices:OnPlayerKilled', player, player.name, inflictor.name, isMelee, volume)
+		NetEvents:SendToLocal('HitVoices:OnPlayerKilled', inflictor, player.name, inflictor.name, isMelee, volume)
 	end
 
 	-- possible bot kill
 	if (player ~= nil and inflictor == nil) then
-		NetEvents:BroadcastLocal('HitVoices:OnPlayerKilled', player.name, '', false)
+		NetEvents:SendToLocal('HitVoices:OnPlayerKilled', player, '', false, 1)
 	end
 end
 
@@ -93,7 +117,7 @@ function HitVoicesServer:onPlayerChat(player, recipientMask, message)
 			ChatManager:SendMessage("Choices are: "..hitVoices.showNameChoices, player)
 		end
 
-		if (parts[1] ~= nil) then
+		if (parts[1] ~= nil and parts[1]:len() > 2) then
 			local characterName = hitVoices:isValidName(parts[1]:sub(2))
 			if (characterName ~= false) then
 				NetEvents:BroadcastLocal('HitVoices:OnChangeCharacter', player.name, characterName)

@@ -106,9 +106,10 @@ function randomNumber(min, max) {
 }
 
 // play a sound using webui
-function playSound(file) {
+function playSound(file, volume = 1) {
 	const audio = document.createElement("audio");
 	audio.src = file;
+	audio.volume = volume;
 	audio.autoplay = true;
 	audio.controls = false;
 	audio.addEventListener("ended", () => audio.remove());
@@ -118,10 +119,10 @@ function playSound(file) {
 const damageGivenCanvas = new HitEffectCanvas(document.getElementById("damageGiven"));
 const damageTakenCanvas = new HitEffectCanvas(document.getElementById("damageTaken"));
 
-function addGivenEffect(character, damage, isHeadshot) {
+function addGivenEffect(character, damage, isHeadshot, volume) {
 	if (damage <= 0) return;
 	if (isHeadshot && character != 'off') {
-		playSound(character+"/vc_"+character+"_attack0"+(randomNumber(1,8))+".ogg");
+		playSound(character+"/vc_"+character+"_attack0"+(randomNumber(1,8))+".ogg", volume);
 	}
 	let effect = new DamageEffect(damage, isHeadshot, damageGivenCanvas);
 	effect.minDegree = 10;
@@ -156,86 +157,86 @@ setInterval(updateCanvases, 1000 / fps);
 
 // scenes - combinations of effects
 
-async function playSetCharacterScene(character) {
+async function playSetCharacterScene(character, volume = 1) {
 	soundsEnabled = (character != 'off');
 	if (character == 'off') {
 		playAwwSound();
 		return;
 	}
 	playSound("announcer/vc_menu_narration_choosechara.ogg");
-	playAnnounceCharacterSound(character, 2255)
-	playCheerSound(character, 1000);
+	playAnnounceCharacterSound(character, 2255, volume)
+	playCheerSound(character, 1000, volume);
 }
 
-async function playSpawnScene(character) {
-	playCheerSound(character);
-	playAnnouncerReadySound(character);
-	playAnnouncerGoSound(character, 1000);
-	playTauntSound(character, 1500);
+async function playSpawnScene(character, volume = 1) {
+	playCheerSound(character, volume);
+	playAnnouncerReadySound(character, volume);
+	playAnnouncerGoSound(character, 1000, volume);
+	playTauntSound(character, 1500, volume);
 }
 
 // -----
 
 // individual sound effects
 
-async function playAnnouncerReadySound(character, delay = 0) {
+async function playAnnouncerReadySound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("announcer/vc_narration_ready.ogg");
+	playSound("announcer/vc_narration_ready.ogg", volume);
 }
 
-async function playAnnouncerGoSound(character, delay = 0) {
+async function playAnnouncerGoSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("announcer/vc_narration_go.ogg");
+	playSound("announcer/vc_narration_go.ogg", volume);
 }
 
-async function playAnnouncerPraiseSound(character, delay = 0) {
+async function playAnnouncerPraiseSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("announcer/vc_menu_narration_praise0"+(randomNumber(1,5))+".ogg");
+	playSound("announcer/vc_menu_narration_praise0"+(randomNumber(1,5))+".ogg", volume);
 }
 
-async function playAnnounceCharacterSound(character, delay = 0) {
+async function playAnnounceCharacterSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("announcer/vc_narration_characall_"+character+".ogg");
+	playSound("announcer/vc_narration_characall_"+character+".ogg", volume);
 }
 
-async function playConnectedSound(character, delay = 0) {
+async function playConnectedSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("announcer/vc_menu_narration_challengersapproach.ogg");
+	playSound("announcer/vc_menu_narration_challengersapproach.ogg", volume);
 }
 
-async function playCheerSound(character, delay = 0) {
+async function playCheerSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("audience/se_audience_cheer_0"+(randomNumber(1,6))+".ogg");
+	playSound("audience/se_audience_cheer_0"+(randomNumber(1,6))+".ogg", volume);
 }
 
-async function playAwwSound(character, delay = 0) {
+async function playAwwSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound("audience/se_audience_death_0"+(randomNumber(1,4))+".ogg");
+	playSound("audience/se_audience_death_0"+(randomNumber(1,4))+".ogg", volume);
 }
 
-async function playJumpSound(character, delay = 0) {
+async function playJumpSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound(character+"/vc_"+character+"_jump0"+(randomNumber(1,4))+".ogg");
+	playSound(character+"/vc_"+character+"_jump0"+(randomNumber(1,4))+".ogg", volume);
 }
 
-async function playTauntSound(character, delay = 0) {
+async function playTauntSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound(character+"/vc_"+character+"_appeal0"+(randomNumber(1,3))+".ogg");
+	playSound(character+"/vc_"+character+"_appeal0"+(randomNumber(1,3))+".ogg", volume);
 }
 
-async function playDeathSound(character, delay = 0) {
+async function playDeathSound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
-	playSound(character+"/vc_"+character+"_damagefly0"+(randomNumber(1,2))+".ogg");
+	playSound(character+"/vc_"+character+"_damagefly0"+(randomNumber(1,2))+".ogg", volume);
 }
 
 // ---

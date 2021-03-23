@@ -22,7 +22,9 @@ function HitVoices:RegisterVars()
 	-- defaults
 	self:onSetConfig({
 		['Voices'] = "Captain,Combine,Ganon,Incineroar,Peach,Wolf,Fox,Luigi,Zombie1,Zombie2,Zombie3,Off",
-		['BotVoices'] = "Zombie1,Zombie2,Zombie3"
+		['BotVoices'] = "Zombie1,Zombie2,Zombie3",
+		['AnnounceBots'] = true,
+		['KillVoiceMaxRange'] = 30
 	})
 end
 
@@ -89,12 +91,26 @@ function HitVoices:isValidName(characterName)
 	return false
 end
 
-function HitVoices:isBot(playerID)
-	local player = PlayerManager:GetPlayerByName(playerID)
-	if (player ~= nil) then
-		return player.guid == nil and player.accountGuid == nil and player.ip == nil
+function HitVoices:isBot(player)
+	if (type(player) == 'string') then
+		player = PlayerManager:GetPlayerByName(player)
 	end
-	return false
+	return player ~= nil and player.guid == nil and player.accountGuid == nil and player.ip == nil
+end
+
+function HitVoices:getVolume(startPos, endPos)
+
+	if (self.Config.KillVoiceMaxRange < 0) then
+		return 1
+	end
+	if (self.Config.KillVoiceMaxRange == 0) then
+		return 0
+	end
+	local distance = startPos:Distance(endPos)
+	if (distance == 0) then
+		return 1
+	end
+	return 1 - math.min(1, math.max(0, (distance / self.Config.KillVoiceMaxRange)))
 end
 
 return HitVoices()
