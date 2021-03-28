@@ -71,20 +71,19 @@ end
 
 function HitVoices:getCharacter(playerID)
 	if (self.characterLookup[playerID] == nil) then
-		if (hitVoices:isBot(playerID)) then
-			self.characterLookup[playerID] = self.botVoices[math.random(1, #self.botVoices)]:lower()
-		else
-			self.characterLookup[playerID] = self.validNames[math.random(1, #self.validNames-1)]:lower()
-		end
+		self.characterLookup[playerID] = self:getRandomCharacter(hitVoices:isBot(playerID))
 	end
 	return self.characterLookup[playerID]
 end
 
 function HitVoices:isValidName(characterName)
-	local characterName = characterName:lower()
+
+	characterName = characterName or ''
+	characterName = characterName:lower()
+
 	for i=1, #self.validNames do
 		-- exact match or partial match
-		if (characterName == self.validNames[i]:lower() or self.validNames[i]:lower():starts(characterName)) then
+		if (characterName == self.validNames[i]:lower() or (characterName:len() > 2 and self.validNames[i]:lower():starts(characterName))) then
 			return self.validNames[i]:lower()
 		end
 	end
@@ -96,6 +95,14 @@ function HitVoices:isBot(player)
 		player = PlayerManager:GetPlayerByName(player)
 	end
 	return player ~= nil and player.guid == nil and player.accountGuid == nil and player.ip == nil
+end
+
+function HitVoices:getRandomCharacter(isBot)
+	if (isBot) then
+		return self.validNames[math.random(1, #self.validNames-1)]:lower()
+	else
+		return self.botVoices[math.random(1, #self.botVoices)]:lower()
+	end
 end
 
 function HitVoices:getVolume(startPos, endPos)

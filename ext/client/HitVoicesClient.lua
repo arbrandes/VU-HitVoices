@@ -9,11 +9,14 @@ function HitVoicesClient:RegisterVars()
 	self.killCounter = 0
 	self.lastPlayerConnectedTime = 0;
 	self.myPlayer = nil
+	self.currentCharacter = '';
+	self.allowCustom = true;
 end
 
 function HitVoicesClient:RegisterEvents()
 
 	Console:Register('Voice', 'Usage: vu-hitVoices.Voice ['..hitVoices.showNameChoicesConsole..'] - Choose Your Character!', self, self.onConsoleSetCharacter)
+	Console:Register('AllowCustom', 'Usage: vu-hitVoices.AllowCustom [true|false] - Enable/Disable custom server sounds.', self, self.onAllowcustom)
 
 	Events:Subscribe('Player:UpdateInput', self, self.onPlayerUpdateInput)
 	Events:Subscribe('Player:Connected', self, self.onPlayerConnected)
@@ -24,6 +27,48 @@ function HitVoicesClient:RegisterEvents()
 	NetEvents:Subscribe('HitVoices:OnDamageTaken', self, self.onDamageTaken)
 	NetEvents:Subscribe('HitVoices:OnDamageGiven', self, self.onDamageGiven)
 	NetEvents:Subscribe('HitVoices:OnPlayerKilled', self, self.onPlayerKilled)
+
+
+	NetEvents:Subscribe('HitVoices:PlayScene', self, self.onPlaySceneCommand)
+	NetEvents:Subscribe('HitVoices:PlaySound', self, self.onPlaySoundCommand)
+end
+
+function HitVoicesClient:onPlaySceneCommand(sceneName, characterName, volume)
+
+	if (self.currentCharacter == 'off') then
+		return
+	end
+
+	if (characterName == nil or characterName == '' or characterName == 'Current') then
+		characterName = self.currentCharacter
+	end
+
+	if (sceneName == 'SetCharacter' or sceneName == 'Spawn') then
+		WebUI:ExecuteJS(string.format("play%sScene(\'%s\', %1.2f)", sceneName, characterName, volume))
+	end
+end
+
+function HitVoicesClient:onPlaySoundCommand(soundName, characterName, delay, volume)
+
+	if (self.currentCharacter == 'off') then
+		return
+	end
+
+	if (characterName == nil or characterName == '' or characterName == 'Current') then
+		characterName = self.currentCharacter
+	end
+
+	if (soundName == 'AnnouncerReady' or soundName == 'AnnouncerGo' or 
+		soundName == 'AnnouncerPraise' or soundName == 'AnnounceCharacter' or 
+		soundName == 'Connected' or soundName == 'Cheer' or 
+		soundName == 'Aww' or soundName == 'Jump' or  
+		soundName == 'Taunt' or soundName == 'Death') then
+
+		WebUI:ExecuteJS(string.format("play%sSound(\'%s\', %d, %1.2f)", soundName, characterName, delay, volume))
+	elseif (soundName == 'Custom' and self.allowCustom) then
+
+		WebUI:ExecuteJS(string.format("playCustomSound(\'%s\', %d, %1.2f)", characterName, delay, volume))
+	end
 end
 
 function HitVoicesClient:onConsoleSetCharacter(args)
@@ -38,6 +83,21 @@ function HitVoicesClient:onConsoleSetCharacter(args)
 
 	SharedUtils:Print("Choices are: "..hitVoices.showNameChoicesConsole)
 	return false
+end
+
+function HitVoicesClient:onAllowcustom(args)
+
+	if (args[1] ~= nil) then
+		self.allowCustom = args[1]:lower() == 'true' or args[1]:lower() == 'on' or args[1] == '1'
+	end
+
+	local enabled = 'enabled'
+	if (not self.allowCustom) then
+		enabled = 'disabled'
+	end
+
+	SharedUtils:Print("Custom sounds are: "..enabled)
+	return true
 end
 
 function HitVoicesClient:onPlayerUpdateInput(player, deltaTime)
@@ -81,6 +141,7 @@ end
 
 function HitVoicesClient:onChangeCharacter(playerID, characterName)
 	if (self.myPlayer ~= nil and self.myPlayer.name == playerID) then
+		self.currentCharacter = characterName:lower()
 		WebUI:ExecuteJS(string.format('playSetCharacterScene(\'%s\')', characterName:lower()))
 	end
 end

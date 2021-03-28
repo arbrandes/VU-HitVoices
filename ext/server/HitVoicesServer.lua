@@ -40,6 +40,62 @@ function HitVoicesServer:RegisterEvents()
 		end)
 	end
 
+	RCON:RegisterCommand('vu-hitVoices.PlayScene', RemoteCommandFlag.RequiresLogin, function(command, args, loggedIn)
+
+		if (args == nil or #args < 2) then
+			return {false, 'Arguments: PlayerName SceneName [CharacterName] [Volume]'}
+		end
+
+		local playerName = args[1] or ''
+		local sceneName = args[2] or ''
+		local character = hitVoices:isValidName(args[3]) or hitVoices:getRandomCharacter()
+		local volume = tonumber(args[4]) or 1
+
+		if (character == '*') then
+			character = hitVoices:getRandomCharacter()
+		end
+
+		if (playerName == '*') then
+			NetEvents:BroadcastLocal('HitVoices:PlayScene', sceneName, character, volume)
+			return {'OK'}
+		else
+			local player = PlayerManager:GetPlayerByName(playerName)
+
+			if (not player) then
+				return {false, 'Player not found: '..playerName}
+			end
+
+			NetEvents:SendToLocal('HitVoices:PlayScene', player, sceneName, character, volume)
+			return {'OK'}
+		end
+	end)
+
+	RCON:RegisterCommand('vu-hitVoices.PlaySound', RemoteCommandFlag.RequiresLogin, function(command, args, loggedIn)
+
+		if (args == nil or #args < 2) then
+			return {false, 'Arguments: PlayerName SoundName [CharacterName] [Delay] [Volume]'}
+		end
+
+		local playerName = args[1] or ''
+		local soundName = args[2] or ''
+		local character = hitVoices:isValidName(args[3]) or hitVoices:getRandomCharacter()
+		local delay = math.abs(tonumber(args[4]) or 0)
+		local volume = math.abs(tonumber(args[5]) or 1)
+
+		if (playerName == '*') then
+			NetEvents:BroadcastLocal('HitVoices:PlaySound', soundName, character, delay, volume)
+			return {'OK'}
+		else
+			local player = PlayerManager:GetPlayerByName(playerName)
+
+			if (not player) then
+				return {false, 'Player not found: '..playerName}
+			end
+
+			NetEvents:SendToLocal('HitVoices:PlaySound', player, soundName, character, delay, volume)
+			return {'OK'}
+		end
+	end)
 end
 
 function HitVoicesServer:onPlayerJoining(name, playerGuid, ipAddress, accountGuid)

@@ -179,6 +179,12 @@ async function playSpawnScene(character, volume = 1) {
 
 // individual sound effects
 
+async function playCustomSound(path, delay = 0, volume = 1) {
+	if (!soundsEnabled) { return; }
+	if (delay > 0) { await sleep(delay); }
+	playSound(path, volume);
+}
+
 async function playAnnouncerReadySound(character, delay = 0, volume = 1) {
 	if (character == 'off' || !soundsEnabled) { return; }
 	if (delay > 0) { await sleep(delay); }
