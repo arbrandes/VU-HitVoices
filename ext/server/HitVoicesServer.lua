@@ -78,7 +78,13 @@ function HitVoicesServer:RegisterEvents()
 
 		local playerName = args[1] or ''
 		local soundName = args[2] or ''
-		local character = hitVoices:isValidName(args[3]) or hitVoices:getRandomCharacter()
+		local character = ''
+		if (soundName:lower() == 'custom') then
+			character = args[3]
+		else
+			character = hitVoices:isValidName(args[3]) or hitVoices:getRandomCharacter()
+		end
+		
 		local delay = math.abs(tonumber(args[4]) or 0)
 		local volume = math.abs(tonumber(args[5]) or 1)
 

@@ -54,18 +54,20 @@ function HitVoicesClient:onPlaySoundCommand(soundName, characterName, delay, vol
 		return
 	end
 
-	if (characterName == nil or characterName == '' or characterName == 'Current') then
+	if (characterName == nil or characterName == '' or characterName:lower() == 'current') then
 		characterName = self.currentCharacter
 	end
 
-	if (soundName == 'AnnouncerReady' or soundName == 'AnnouncerGo' or 
-		soundName == 'AnnouncerPraise' or soundName == 'AnnounceCharacter' or 
-		soundName == 'Connected' or soundName == 'Cheer' or 
-		soundName == 'Aww' or soundName == 'Jump' or  
-		soundName == 'Taunt' or soundName == 'Death') then
+	local lsName = soundName:lower()
+
+	if (lsName == 'announcerready' or lsName == 'announcergo' or 
+		lsName == 'announcerpraise' or lsName == 'announcecharacter' or 
+		lsName == 'connected' or lsName == 'cheer' or 
+		lsName == 'aww' or lsName == 'jump' or  
+		lsName == 'taunt' or lsName == 'death') then
 
 		WebUI:ExecuteJS(string.format("play%sSound(\'%s\', %d, %1.2f)", soundName, characterName, delay, volume))
-	elseif (soundName == 'Custom' and self.allowCustom) then
+	elseif (lsName == 'custom' and self.allowCustom) then
 
 		WebUI:ExecuteJS(string.format("playCustomSound(\'%s\', %d, %1.2f)", characterName, delay, volume))
 	end
