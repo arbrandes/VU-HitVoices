@@ -99,9 +99,9 @@ end
 
 function HitVoices:getRandomCharacter(isBot)
 	if (isBot) then
-		return self.validNames[math.random(1, #self.validNames-1)]:lower()
-	else
 		return self.botVoices[math.random(1, #self.botVoices)]:lower()
+	else
+		return self.validNames[math.random(1, #self.validNames-1)]:lower()
 	end
 end
 

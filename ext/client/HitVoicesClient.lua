@@ -11,6 +11,7 @@ function HitVoicesClient:RegisterVars()
 	self.myPlayer = nil
 	self.currentCharacter = '';
 	self.allowCustom = true;
+	self.disableSpawn = true;
 end
 
 function HitVoicesClient:RegisterEvents()
@@ -103,7 +104,6 @@ function HitVoicesClient:onAllowcustom(args)
 end
 
 function HitVoicesClient:onPlayerUpdateInput(player, deltaTime)
-
 	if (self.myPlayer == nil) then
 		self.myPlayer = PlayerManager:GetLocalPlayer()
 	end
@@ -136,6 +136,10 @@ function HitVoicesClient:onPlayerConnected(player)
 end
 
 function HitVoicesClient:onPlayerRespawn(player)
+	if (self.disableSpawn) then
+		return
+	end
+
 	if (self.myPlayer ~= nil and self.myPlayer.id == player.id) then
 		WebUI:ExecuteJS(string.format("playSpawnScene(\'%s\')", hitVoices:getCharacter(self.myPlayer.name)))
 	end
