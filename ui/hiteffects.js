@@ -153,7 +153,7 @@ function updateCanvases() {
 let soundsEnabled = true;
 let announcerEnabled = true;
 let audienceEnabled = true;
-let voicesEnabled = true;
+let voicesEnabled = false;
 let fps = 60;
 // sweet 60fps animations
 setInterval(updateCanvases, 1000 / fps);

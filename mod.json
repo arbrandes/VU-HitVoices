@@ -2,7 +2,7 @@
   "Name": "VU-HitVoices",
   "Authors": ["breaknix", "MajorVictory87", "Afoldo"],
   "Description": "Adds character voices, crowd applause, and an announcer.",
-  "Version": "1.0.1-afoldo.1",
+  "Version": "1.0.1-afoldo.2",
   "HasVeniceEXT": true,
   "HasWebUI": true,
   "Dependencies": {
